@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="member">
+	<insert id="add" parameterType="mvo">
+		insert into member
+		values(member_seq.nextVal,#{id},#{pwd},#{name},#{age},#{gender},sysdate)
+	</insert>
+
+	<select id="idchk" parameterType="String" resultType="int">
+		select
+		count(*) from member where id=#{id}
+	</select>
+
+	<select id="login" parameterType="mvo" resultType="mvo">
+		select id,
+		name from member where id=#{id} AND pwd=#{pwd}
+	</select>
+
+	<!-- login loggin mapper -->
+	<!-- idn 로그인한 시점과 로그아웃한 시점 uagent 사용자 디바이스, status 상태 -->
+	<insert id="logger_in" parameterType="lvo">
+		insert into myloginlog
+		values(myloginlog_seq.nextVal,#{idn},#{reip},#{uagent},#{status},sysdate)
+	</insert>
+
+	<!-- 과제 -->
+	<select id="mypage" parameterType="String" resultType="mvo">
+		select
+		num,id,name,age,gender,mdate from member where id=#{id}
+	</select>
+
+	<update id="update" parameterType="mvo">
+		update member set
+		name=#{name},age=#{age},gender=#{gender} where num=#{num}
+	</update>
+
+	<select id="log_info" parameterType="String" resultType="lvo">
+		select
+		reip,to_char(sstime,'YYYY-MM-DD') sstime ,count(*) cnt
+		from myloginlog
+		where idn=#{idn}
+		GROUP by reip,to_char(sstime,'YYYY-MM-DD') order by 2
+		desc
+	</select>
+
+	<!-- jsonMapper -->
+	<select id="jsonDemo" parameterType="String" resultType="mvo">
+		select *
+		from member where id=#{id}
+	</select>
+
+	<!-- jsonMapper list 과제 -->
+	<select id="jsonDemolist" resultType="mvo">
+		select
+		num,id,name,age,gender from member
+	</select>
+
+	<!-- jsonMapper page list 과제 -->
+	<select id="jsonpagelist" resultType="mvo" parameterType="map">
+		select * from( select rownum rn, a.* from(
+		select * from member order by num desc )a )
+		where rn BETWEEN #{begin} and #{end}
+	</select>
+	
+	<select id="jsonCnt" resultType="int">
+		select count(*) from member
+	</select>
+	
+</mapper>
